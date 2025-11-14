@@ -3,21 +3,29 @@ import { useAuth } from '../context/AuthContext';
 import Sidebar from './components/Sidebar';
 import MessageContainer from './components/MessageContainer';
 import Profile from '../profile/Profile';
+import ConnectionManager from '../components/ConnectionManager';
 import { FaUser, FaComments, FaUsers, FaBell, FaSearch } from 'react-icons/fa';
 
 const Home = () => {
     const { authUser } = useAuth();
     const [activeTab, setActiveTab] = useState('messages');
 
-    // Listen for profile switch event from sidebar
+    // Listen for cross-component navigation events
     React.useEffect(() => {
         const handleSwitchToProfile = () => {
             setActiveTab('profile');
         };
 
+        const handleSwitchToMessages = () => {
+            setActiveTab('messages');
+        };
+
         window.addEventListener('switchToProfile', handleSwitchToProfile);
+        window.addEventListener('switchToMessages', handleSwitchToMessages);
+
         return () => {
             window.removeEventListener('switchToProfile', handleSwitchToProfile);
+            window.removeEventListener('switchToMessages', handleSwitchToMessages);
         };
     }, []);
 
@@ -48,9 +56,9 @@ const Home = () => {
                 </button>
 
                 <button 
-                    onClick={() => setActiveTab('network')}
+                    onClick={() => setActiveTab('connections')}
                     className={`p-3 rounded-xl transition-all duration-200 ${
-                        activeTab === 'network' 
+                        activeTab === 'connections' 
                             ? 'bg-blue-100 text-blue-600 shadow-md' 
                             : 'text-gray-500 hover:bg-gray-100'
                     }`}
@@ -88,10 +96,11 @@ const Home = () => {
                     <Sidebar activeTab={activeTab} />
                 </div>
 
-                {/* Main Content - Messages/Profile/Network */}
+                {/* Main Content - Messages/Profile/Connections */}
                 <div className="flex-1 bg-white">
                     {activeTab === 'messages' && <MessageContainer />}
                     {activeTab === 'profile' && <Profile />}
+                    {activeTab === 'connections' && <ConnectionManager />}
                     {activeTab === 'network' && (
                         <div className="h-full bg-gradient-to-br from-green-50 to-emerald-100 overflow-y-auto">
                             <div className="max-w-6xl mx-auto p-8">

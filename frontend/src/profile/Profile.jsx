@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FaUser, FaEnvelope, FaMapMarkerAlt, FaPhone, FaGraduationCap, FaCode, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaMapMarkerAlt, FaPhone, FaGraduationCap, FaCode, FaEdit, FaSave, FaTimes, FaUsers, FaComments } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -10,6 +10,34 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const [editData, setEditData] = useState({});
+    const [stats, setStats] = useState({
+        connections: 0,
+        messages: 0,
+        posts: 0
+    });
+
+    // Fetch user stats
+    const fetchStats = async () => {
+        try {
+            // Fetch connections count
+            const connectionsResponse = await axios.get('/api/connection/list', {
+                withCredentials: true
+            });
+            
+            // Fetch messages count (approximate)
+            const messagesResponse = await axios.get('/api/users/currentchatters', {
+                withCredentials: true
+            });
+            
+            setStats({
+                connections: connectionsResponse.data.success ? connectionsResponse.data.connections?.length || 0 : 0,
+                messages: messagesResponse.data?.length || 0, // This is approximate
+                posts: 0 // Posts not implemented yet
+            });
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        }
+    };
 
     // Fetch user profile
     useEffect(() => {
@@ -44,6 +72,7 @@ const Profile = () => {
 
         if (authUser) {
             fetchProfile();
+            fetchStats();
         } else {
             console.log('No authUser found, skipping profile fetch');
             setLoading(false);
@@ -62,14 +91,27 @@ const Profile = () => {
 
     const handleSave = async () => {
         try {
-            // Here you would typically call an update API
-            // For now, we'll just simulate saving
-            setProfile(editData);
-            setEditing(false);
-            toast.success('Profile updated successfully!');
+            setLoading(true);
+            const response = await axios.put('/api/users/profile', editData, {
+                withCredentials: true
+            });
+            
+            if (response.data.success) {
+                setProfile(response.data.profile);
+                setEditing(false);
+                toast.success('Profile updated successfully!');
+            } else {
+                toast.error(response.data.message || 'Failed to update profile');
+            }
         } catch (error) {
             console.error('Error updating profile:', error);
-            toast.error('Failed to update profile');
+            if (error.response) {
+                toast.error(error.response.data?.message || 'Failed to update profile');
+            } else {
+                toast.error('Network error - please check your connection');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -146,13 +188,14 @@ const Profile = () => {
     }
 
     return (
-        <div className="h-full bg-gradient-to-br from-blue-50 to-indigo-100 overflow-y-auto">
-            <div className="max-w-4xl mx-auto p-8">
+        <div className="h-full bg-slate-50 overflow-y-auto">
+            <div className="max-w-5xl mx-auto p-6 md:p-10 space-y-6">
                 {/* Profile Header */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center space-x-6">
-                            <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-2xl">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_transparent)]"></div>
+                    <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start md:justify-between p-8 gap-8">
+                        <div className="flex items-center gap-6">
+                            <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white/30 shadow-lg">
                                 {profile.avatar && profile.avatar !== 'default-avatar.png' ? (
                                     <img 
                                         src={profile.avatar} 
@@ -160,52 +203,138 @@ const Profile = () => {
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                                    <div className="w-full h-full bg-white/20 flex items-center justify-center text-white text-4xl font-bold">
                                         {profile.username?.charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
-                            <div className="flex-1">
-                                <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                                    {editing ? (
-                                        <input
-                                            type="text"
-                                            value={editData.fullName || ''}
-                                            onChange={(e) => handleInputChange('fullName', e.target.value)}
-                                            className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-3xl font-bold"
-                                        />
-                                    ) : (
-                                        profile.fullName || profile.username
-                                    )}
-                                </h1>
-                                <p className="text-lg text-gray-600 mb-4">@{profile.username}</p>
-                                <div className="flex space-x-4">
-                                    {editing ? (
+                            <div>
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData.fullName || ''}
+                                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                                        className="bg-white/20 border border-white/40 rounded-xl px-4 py-2 text-3xl font-bold placeholder-white/80 text-white w-full focus:outline-none focus:ring-2 focus:ring-white/60"
+                                        placeholder="Full name"
+                                    />
+                                ) : (
+                                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                                        {profile.fullName || profile.username}
+                                    </h1>
+                                )}
+                                <p className="text-white/80 mt-1">@{profile.username}</p>
+                                <div className="mt-4 flex flex-wrap gap-3">
+                                    {(profile.location || profile.phoneNumber || profile.email) && (
                                         <>
-                                            <button
-                                                onClick={handleSave}
-                                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                                            >
-                                                <FaSave />
-                                                <span>Save</span>
-                                            </button>
-                                            <button
-                                                onClick={handleCancel}
-                                                className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                                            >
-                                                <FaTimes />
-                                                <span>Cancel</span>
-                                            </button>
+                                            {profile.location && (
+                                                <span className="px-3 py-1 rounded-full bg-white/15 text-sm flex items-center gap-2">
+                                                    <FaMapMarkerAlt />
+                                                    {profile.location}
+                                                </span>
+                                            )}
+                                            {profile.email && (
+                                                <span className="px-3 py-1 rounded-full bg-white/15 text-sm flex items-center gap-2">
+                                                    <FaEnvelope />
+                                                    {profile.email}
+                                                </span>
+                                            )}
+                                            {profile.phoneNumber && (
+                                                <span className="px-3 py-1 rounded-full bg-white/15 text-sm flex items-center gap-2">
+                                                    <FaPhone />
+                                                    {profile.phoneNumber}
+                                                </span>
+                                            )}
                                         </>
-                                    ) : (
-                                        <button
-                                            onClick={handleEdit}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                                        >
-                                            <FaEdit />
-                                            <span>Edit Profile</span>
-                                        </button>
                                     )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:items-end gap-3 w-full md:w-auto">
+                            {!editing && (
+                                <div className="text-sm text-white/80 bg-white/15 px-3 py-1 rounded-full self-start md:self-end">
+                                    Last refreshed a moment ago
+                                </div>
+                            )}
+                            <div className="flex flex-wrap gap-3">
+                                {editing ? (
+                                    <>
+                                        <button
+                                            onClick={handleSave}
+                                            className="bg-emerald-400 hover:bg-emerald-300 text-gray-900 px-5 py-2 rounded-xl font-semibold flex items-center gap-2 transition"
+                                        >
+                                            <FaSave />
+                                            Save
+                                        </button>
+                                        <button
+                                            onClick={handleCancel}
+                                            className="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-xl font-semibold flex items-center gap-2 transition"
+                                        >
+                                            <FaTimes />
+                                            Cancel
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={handleEdit}
+                                        className="bg-white text-blue-700 px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg hover:-translate-y-0.5 transition"
+                                    >
+                                        <FaEdit />
+                                        Edit Profile
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Professional Summary */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-3">Professional Summary</h3>
+                        <p className="text-gray-600 leading-relaxed">
+                            {profile.bio || "Add a short professional summary to let others know what drives you, the industries you care about, and the impact you're creating."}
+                        </p>
+                        {profile.skills?.length > 0 && (
+                            <div className="mt-4">
+                                <p className="text-sm font-semibold text-gray-700 mb-2">Top Skills</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {profile.skills.slice(0, 6).map((skill, index) => (
+                                        <span key={index} className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm">
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-3">Career Highlights</h3>
+                        <div className="space-y-3 text-gray-700">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <FaUsers />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Connections</p>
+                                    <p className="text-lg font-semibold">{stats.connections}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <FaComments />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Active Conversations</p>
+                                    <p className="text-lg font-semibold">{stats.messages}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                                    <FaGraduationCap />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Education</p>
+                                    <p className="text-lg font-semibold">{profile.education?.degree || 'Not added yet'}</p>
                                 </div>
                             </div>
                         </div>
@@ -215,15 +344,15 @@ const Profile = () => {
                 {/* Profile Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-                        <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+                        <div className="text-3xl font-bold text-blue-600 mb-2">{stats.connections}</div>
                         <div className="text-gray-600">Connections</div>
                     </div>
                     <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-                        <div className="text-3xl font-bold text-green-600 mb-2">0</div>
-                        <div className="text-gray-600">Messages</div>
+                        <div className="text-3xl font-bold text-green-600 mb-2">{stats.messages}</div>
+                        <div className="text-gray-600">Chat Partners</div>
                     </div>
                     <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-                        <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
+                        <div className="text-3xl font-bold text-purple-600 mb-2">{stats.posts}</div>
                         <div className="text-gray-600">Posts</div>
                     </div>
                 </div>

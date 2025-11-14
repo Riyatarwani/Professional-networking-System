@@ -4,6 +4,7 @@ import Register from './register/Register.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Home from './home/Home.jsx';
+import ConnectionManager from './components/ConnectionManager.jsx';
 import { VerifyUser } from './utils/VerifyUser.jsx';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
                     {/* Protected routes */}
                     <Route element={<VerifyUser />}>
                         <Route path="/dashboard" element={<Home />} />
+                        <Route path="/connections" element={<ConnectionManager />} />
                     </Route>
 
                     {/* Catch-all route redirects to /login */}

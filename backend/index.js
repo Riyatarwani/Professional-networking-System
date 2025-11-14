@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './route/authUser.js';
 import userRoutes from './route/userRout.js';
 import messageRoutes from './route/messageRout.js';
+import connectionRoutes from './route/connectionRout.js';
 import isLogin from './middleware/isLogin.js';
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);    // Authentication routes
 app.use('/api/users', userRoutes);   // User-related routes
 app.use('/api/user', userRoutes);    // Alias for frontend compatibility
 app.use('/api/message', messageRoutes); // Message routes
+app.use('/api/connection', connectionRoutes); // Connection routes
 
 // Test route
 app.get('/api/test', (req, res) => {

@@ -1,6 +1,7 @@
 // userhandlerController.js
 import Conversation from "../Models/conversationModels.js";
 import User from "../Models/userModels.js";
+import Connection from "../Models/connectionModels.js";
 
 export const getUserBySearch = async (req, res) => {
     try {
@@ -39,28 +40,29 @@ export const getCurrentChatters = async (req, res) => {
     try {
         const currentUserID = req.user._id; // Get user ID from the authenticated user
 
-        // Find conversations where the current user is a participant
-        const currentChatters = await Conversation.find({
-            participants: currentUserID 
-        }).sort({ updatedAt: -1 });
+        // First, get all accepted connections for the current user
+        const connections = await Connection.find({
+            $or: [
+                { requester: currentUserID, status: 'accepted' },
+                { recipient: currentUserID, status: 'accepted' }
+            ]
+        });
 
-        // If no conversations, return an empty array
-        if (!currentChatters || currentChatters.length === 0) {
+        // If no connections, return an empty array
+        if (!connections || connections.length === 0) {
             return res.status(200).json([]);
         }
 
-        // Extract unique participant IDs, excluding the current user
-        const participantsIDs = [...new Set(
-            currentChatters.flatMap(conversation => 
-                conversation.participants.filter(id => 
-                    id.toString() !== currentUserID.toString()
-                )
-            )
-        )];
+        // Extract connected user IDs
+        const connectedUserIDs = connections.map(connection => 
+            connection.requester.toString() === currentUserID.toString() 
+                ? connection.recipient 
+                : connection.requester
+        );
 
-        // Fetch user details for these participants
+        // Fetch user details for connected users
         const users = await User.find({ 
-            _id: { $in: participantsIDs } 
+            _id: { $in: connectedUserIDs } 
         }).select("-password -email"); // Exclude sensitive information
 
         res.status(200).json(users);
@@ -111,5 +113,62 @@ export const getProfile = async (req, res) => {
     } catch (error) {
         console.error('Get profile error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const updateData = req.body;
+        
+        console.log('Updating profile for user:', userId);
+        console.log('Update data:', updateData);
+
+        // Remove fields that shouldn't be updated directly
+        const { password, email, username, ...allowedUpdates } = updateData;
+        
+        // Validate education year if provided
+        if (allowedUpdates.education?.year && !/^\d{4}$/.test(allowedUpdates.education.year)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Graduation year must be a 4-digit number'
+            });
+        }
+
+        // Validate phone number if provided
+        if (allowedUpdates.phoneNumber && !/^\+?[0-9]{10,15}$/.test(allowedUpdates.phoneNumber)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a valid phone number'
+            });
+        }
+
+        // Update the user
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            allowedUpdates,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        console.log('Profile updated successfully for user:', updatedUser.username);
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            profile: updatedUser
+        });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error.message
+        });
     }
 };

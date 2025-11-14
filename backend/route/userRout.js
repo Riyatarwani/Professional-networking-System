@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCurrentChatters, getUserBySearch, getAllUsers, getProfile } from '../routeControllers/userhandlerController.js';
+import { getCurrentChatters, getUserBySearch, getAllUsers, getProfile, updateProfile } from '../routeControllers/userhandlerController.js';
 import isLogin from '../middleware/isLogin.js';
 
 const router = express.Router();
@@ -17,6 +17,7 @@ router.get('/search', isLogin, getUserBySearch);
 router.get('/currentchatters', isLogin, getCurrentChatters);
 router.get('/all', isLogin, getAllUsers);
 router.get('/profile', isLogin, getProfile);
+router.put('/profile', isLogin, updateProfile);
 
 
 router.get('/', (req, res) => {

@@ -1,7 +1,7 @@
 // Test script to verify connection system
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://professional-networking-system-1.onrender.com';
 
 async function testConnectionSystem() {
     console.log('🔍 Testing LinkedIn-style Connection System...\n');

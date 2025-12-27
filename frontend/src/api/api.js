@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'https://professional-networking-system.onrender.com',
+  baseURL: 'https://professional-networking-system-1.onrender.com',
   withCredentials: true
 });
 

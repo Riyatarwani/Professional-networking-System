@@ -28,7 +28,8 @@ const Login = () => {
     try {
       console.log('Attempting login with:', { email, password }); // Debug log
       
-      const response = await axios.post('/api/auth/login', {
+      const response = await axios.post('https://professional-networking-system-1.onrender.com/api/auth/login
+', {
         email,
         password
       }, {

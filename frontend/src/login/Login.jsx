@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
-import api from "../utils/api";
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -29,8 +28,7 @@ const Login = () => {
     try {
       console.log('Attempting login with:', { email, password }); // Debug log
       
-      const response = await axios.post('https://professional-networking-system-1.onrender.com/api/auth/login
-', {
+      const response = await axios.post('/api/auth/login'
         email,
         password
       }, {

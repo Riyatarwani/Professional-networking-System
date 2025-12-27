@@ -28,7 +28,7 @@ const Login = () => {
     try {
       console.log('Attempting login with:', { email, password }); // Debug log
       
-      const response = await axios.post('/api/test'
+      const response = await axios.post('/api/auth/login'
         email,
         password
       }, {

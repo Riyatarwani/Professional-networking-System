@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import UserProfilePreview from '../../components/UserProfilePreview';
 
 const api = axios.create({
-  baseURL: 'https://professional-networking-system.onrender.com',
+  baseURL: 'https://professional-networking-system-1.onrender.com',
   withCredentials: true
 });
 

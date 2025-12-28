@@ -135,7 +135,7 @@ const validateStep = () => {
 
       if (response.data.success) {
         toast.success('Registration successful! Please login.');
-        navigate('/login');
+        navigate('https://professional-networking-system-2.onrender.com/login');
       } else {
         setError(response.data.message || 'Registration failed');
         toast.error(response.data.message || 'Registration failed');

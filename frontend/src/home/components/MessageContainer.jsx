@@ -40,7 +40,7 @@ const MessageContainer = ({ onBackUser }) => {
             setLoading(true);
             try {
                 // First get or create conversation
-                const conversationResponse = await api.get(`https://professional-networking-system-2.onrender.com/api/message/conversation/${selectedConversation._id}`);
+                const conversationResponse = await api.get(`https://professional-networking-system-1.onrender.com/api/message/conversation/${selectedConversation._id}`);
                 const conversationData = conversationResponse.data;
                 
                 if (conversationData.success === false) {
@@ -54,7 +54,7 @@ const MessageContainer = ({ onBackUser }) => {
                 setConnectionError(false);
                 
                 // Then get messages for the conversation
-                const response = await api.get(`https://professional-networking-system-2.onrender.com/api/message/${conversationData.conversation._id}`);
+                const response = await api.get(`https://professional-networking-system-1.onrender.com/api/message/${conversationData.conversation._id}`);
                 const data = response.data;
                 
                 if (data.success === false) {
@@ -107,7 +107,7 @@ const MessageContainer = ({ onBackUser }) => {
         
         try {
             const response = await api.post(
-                `https://professional-networking-system-2.onrender.com/api/message/send/${selectedConversation._id}`,
+                `https://professional-networking-system-1.onrender.com/api/message/send/${selectedConversation._id}`,
                 { message: messageText }
             );
             

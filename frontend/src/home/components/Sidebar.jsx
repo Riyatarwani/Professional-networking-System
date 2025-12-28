@@ -41,7 +41,7 @@ const Sidebar = ({ activeTab }) => {
             
             setNetworkLoading(true);
             try {
-                const response = await axios.get('/api/users/all', {
+                const response = await axios.get('https://professional-networking-system-2.onrender.com/api/users/all', {
                     withCredentials: true
                 });
                 const data = response.data;
@@ -63,7 +63,7 @@ const Sidebar = ({ activeTab }) => {
                 if (error.response && error.response.status === 404) {
                     // Fallback to search endpoint if all users endpoint doesn't exist
                     try {
-                        const searchResponse = await axios.get('/api/user/search?search=', {
+                        const searchResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/user/search?search=', {
                             withCredentials: true
                         });
                         const searchData = searchResponse.data;
@@ -93,7 +93,7 @@ const Sidebar = ({ activeTab }) => {
             if (activeTab !== 'network' && activeTab !== 'messages') return;
 
             try {
-                const response = await axios.get('/api/connection/sent', {
+                const response = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/sent', {
                     withCredentials: true
                 });
 
@@ -120,7 +120,7 @@ const Sidebar = ({ activeTab }) => {
             try {
                 // Fetch connection requests (only for network tab)
                 if (activeTab === 'network') {
-                    const requestsResponse = await axios.get('/api/connection/requests', {
+                    const requestsResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/requests', {
                         withCredentials: true
                     });
                     
@@ -130,7 +130,7 @@ const Sidebar = ({ activeTab }) => {
                 }
 
                 // Fetch connections (for both network and messages tabs)
-                const connectionsResponse = await axios.get('/api/connection/list', {
+                const connectionsResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/list', {
                     withCredentials: true
                 });
                 
@@ -165,7 +165,7 @@ const Sidebar = ({ activeTab }) => {
             setChatUsersLoading(true);
             try {
                 // Using the correct endpoint path
-                const response = await axios.get('/api/users/currentchatters', {
+                const response = await axios.get('https://professional-networking-system-2.onrender.com/api/users/currentchatters', {
                     withCredentials: true
                 });
                 const data = response.data;
@@ -242,7 +242,7 @@ const Sidebar = ({ activeTab }) => {
         
         setLoading(true);
         try {
-            const search = await axios.get(`/api/user/search?search=${searchInput}`);
+            const search = await axios.get(`https://professional-networking-system-2.onrender.com/api/user/search?search=${searchInput}`);
             const data = search.data;
             
             if (data.success === false) {
@@ -291,7 +291,7 @@ const Sidebar = ({ activeTab }) => {
         if (confirmlogout === authUser.username) {
             setLoading(true);
             try {
-                const logout = await axios.post('/api/auth/logout');
+                const logout = await axios.post('https://professional-networking-system-2.onrender.com/api/auth/logout');
                 const data = logout.data;
                 
                 if (data?.success === false) {
@@ -339,7 +339,7 @@ const Sidebar = ({ activeTab }) => {
         const isUserInChatList = chatUser.some(u => u._id === user._id);
         if (!isUserInChatList) {
             try {
-                const chatResponse = await axios.get('/api/users/currentchatters', {
+                const chatResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/users/currentchatters', {
                     withCredentials: true
                 });
                 const chatData = chatResponse.data;
@@ -371,7 +371,7 @@ const Sidebar = ({ activeTab }) => {
     // Handle connect/disconnect functionality
     const handleConnect = async (user) => {
         try {
-            const response = await axios.post(`/api/connection/send/${user._id}`, {
+            const response = await axios.post(`https://professional-networking-system-2.onrender.com/api/connection/send/${user._id}`, {
                 message: `Hi ${user.username}, I'd like to connect with you!`
             }, {
                 withCredentials: true
@@ -379,7 +379,7 @@ const Sidebar = ({ activeTab }) => {
             
             if (response.data.success) {
                 toast.success(`Connection request sent to ${user.username}`);
-                const sentResponse = await axios.get('/api/connection/sent', {
+                const sentResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/sent', {
                     withCredentials: true
                 });
                 if (sentResponse.data.success) {
@@ -406,7 +406,7 @@ const Sidebar = ({ activeTab }) => {
     // Handle connection request response
     const handleConnectionResponse = async (connectionId, status, requesterUser = null) => {
         try {
-            const response = await axios.put(`/api/connection/respond/${connectionId}`, {
+            const response = await axios.put(`https://professional-networking-system-2.onrender.com/api/connection/respond/${connectionId}`, {
                 status: status
             }, {
                 withCredentials: true
@@ -422,7 +422,7 @@ const Sidebar = ({ activeTab }) => {
                 if (status === 'accepted') {
                     // Refresh connections list
                     try {
-                        const connectionsResponse = await axios.get('/api/connection/list', {
+                        const connectionsResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/list', {
                             withCredentials: true
                         });
                         if (connectionsResponse.data.success) {
@@ -433,7 +433,7 @@ const Sidebar = ({ activeTab }) => {
                             if (requesterUser) {
                                 // Refresh chat users list first
                                 try {
-                                    const chatResponse = await axios.get('/api/users/currentchatters', {
+                                    const chatResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/users/currentchatters', {
                                         withCredentials: true
                                     });
                                     const chatData = chatResponse.data;
@@ -452,7 +452,7 @@ const Sidebar = ({ activeTab }) => {
                     
                     // Refresh chat users list (always refresh)
                     try {
-                        const chatResponse = await axios.get('/api/users/currentchatters', {
+                        const chatResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/users/currentchatters', {
                             withCredentials: true
                         });
                         const chatData = chatResponse.data;

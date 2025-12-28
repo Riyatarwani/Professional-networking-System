@@ -20,12 +20,12 @@ const Profile = () => {
     const fetchStats = async () => {
         try {
             // Fetch connections count
-            const connectionsResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/list', {
+            const connectionsResponse = await axios.get('https://professional-networking-system-1.onrender.com/api/connection/list', {
                 withCredentials: true
             });
             
             // Fetch messages count (approximate)
-            const messagesResponse = await axios.get('https://professional-networking-system-2.onrender.com/api/users/currentchatters', {
+            const messagesResponse = await axios.get('https://professional-networking-system-1.onrender.com/api/users/currentchatters', {
                 withCredentials: true
             });
             
@@ -44,7 +44,7 @@ const Profile = () => {
         const fetchProfile = async () => {
             try {
                 console.log('Fetching profile for user:', authUser);
-                const response = await axios.get('https://professional-networking-system-2.onrender.com/api/users/profile', {
+                const response = await axios.get('https://professional-networking-system-1.onrender.com/api/users/profile', {
                     withCredentials: true
                 });
                 
@@ -92,7 +92,7 @@ const Profile = () => {
     const handleSave = async () => {
         try {
             setLoading(true);
-            const response = await axios.put('https://professional-networking-system-2.onrender.com/api/users/profile', editData, {
+            const response = await axios.put('https://professional-networking-system-1.onrender.com/api/users/profile', editData, {
                 withCredentials: true
             });
             

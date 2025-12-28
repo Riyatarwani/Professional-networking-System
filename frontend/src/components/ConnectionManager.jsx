@@ -17,7 +17,7 @@ const ConnectionManager = () => {
     // Fetch all users
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('https://professional-networking-system-2.onrender.com/api/users/all', {
+            const response = await axios.get('https://professional-networking-system-1.onrender.com/api/users/all', {
                 withCredentials: true
             });
             setUsers(response.data);
@@ -28,7 +28,7 @@ const ConnectionManager = () => {
 
     const fetchSentRequests = async () => {
         try {
-            const response = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/sent', {
+            const response = await axios.get('https://professional-networking-system-1.onrender.com/api/connection/sent', {
                 withCredentials: true
             });
 
@@ -46,7 +46,7 @@ const ConnectionManager = () => {
     // Fetch connection requests
     const fetchConnectionRequests = async () => {
         try {
-            const response = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/requests', {
+            const response = await axios.get('https://professional-networking-system-1.onrender.com/api/connection/requests', {
                 withCredentials: true
             });
             setConnectionRequests(response.data.receivedRequests || []);
@@ -58,7 +58,7 @@ const ConnectionManager = () => {
     // Fetch connections
     const fetchConnections = async () => {
         try {
-            const response = await axios.get('https://professional-networking-system-2.onrender.com/api/connection/list', {
+            const response = await axios.get('https://professional-networking-system-1.onrender.com/api/connection/list', {
                 withCredentials: true
             });
             setConnections(response.data.connections || []);
@@ -71,7 +71,7 @@ const ConnectionManager = () => {
     const sendConnectionRequest = async (userId) => {
         try {
             setLoading(true);
-            const response = await axios.post(`https://professional-networking-system-2.onrender.com/api/connection/send/${userId}`, {
+            const response = await axios.post(`https://professional-networking-system-1.onrender.com/api/connection/send/${userId}`, {
                 message: "Hi! I'd like to connect with you."
             }, {
                 withCredentials: true
@@ -93,7 +93,7 @@ const ConnectionManager = () => {
     // Accept connection request
     const acceptConnection = async (connectionId) => {
         try {
-            const response = await axios.put(`https://professional-networking-system-2.onrender.com/api/connection/respond/${connectionId}`, {
+            const response = await axios.put(`https://professional-networking-system-1.onrender.com/api/connection/respond/${connectionId}`, {
                 status: 'accepted'
             }, {
                 withCredentials: true
@@ -114,7 +114,7 @@ const ConnectionManager = () => {
     // Reject connection request
     const rejectConnection = async (connectionId) => {
         try {
-            const response = await axios.put(`https://professional-networking-system-2.onrender.com/api/connection/respond/${connectionId}`, {
+            const response = await axios.put(`https://professional-networking-system-1.onrender.com/api/connection/respond/${connectionId}`, {
                 status: 'rejected'
             }, {
                 withCredentials: true

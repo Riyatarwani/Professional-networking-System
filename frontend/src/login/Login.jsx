@@ -25,24 +25,24 @@ const Login = () => {
     setLoading(true);
     setError("");
     
-    try {
-      console.log('Attempting login with:', { email, password }); // Debug log
-      
-     const response = await axios.post(
-  'https://professional-networking-system-1.onrender.com/api/auth/login',
-  {
-    email,
-    password
-  },
-  {
-    headers: {
-      'Content-Type': 'application/json'
+  try {
+  console.log('Attempting login with:', { email, password }); // Debug log
+  
+  const response = await axios.post(
+    'https://professional-networking-system-1.onrender.com/api/auth/login',
+    {
+      email,
+      password
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true  // ✅ Add this here
     }
-  }
-);
-
-      
-      console.log('Login response:', response.data); // Debug log
+  );
+   
+  console.log('Login response:', response.data); // Debug log
       
       if (response.data.success) {
         // Store user data in localStorage and context

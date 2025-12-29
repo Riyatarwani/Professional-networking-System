@@ -159,7 +159,7 @@ POST /api/auth/login
 MCA Graduate | Backend & Full Stack Developer
 Passionate about building scalable web applications
 
-🔗 GitHub: [https://github.com/Riyatarwani](https://github.com/Riyatarwani)
+🔗 GitHub: https://github.com/Riyatarwani
 
 ---
 

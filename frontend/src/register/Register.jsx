@@ -4,6 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
+// ✅ CREATE API INSTANCE AT THE TOP
+const api = axios.create({
+  baseURL: 'https://professional-networking-system-1.onrender.com',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 const Register = () => {
   const navigate = useNavigate();
 
@@ -13,7 +22,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    gender: '', // Default value
+    gender: '',
     education: {
       institute: '',
       degree: '',
@@ -30,11 +39,9 @@ const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Check if it's a nested field (education)
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
@@ -52,61 +59,54 @@ const Register = () => {
     }
   };
 
-// Validate current step
-const validateStep = () => {
-  if (currentStep === 1) {
-    if (!formData.fullName || !formData.username || !formData.email) {
-      setError('Please fill all fields');
-      return false;
+  const validateStep = () => {
+    if (currentStep === 1) {
+      if (!formData.fullName || !formData.username || !formData.email) {
+        setError('Please fill all fields');
+        return false;
+      }
+      if (formData.password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return false;
+      }
+    } else if (currentStep === 2) {
+      if (formData.education.year && !/^\d{4}$/.test(formData.education.year)) {
+        setError('Graduation year must be a 4-digit number');
+        return false;
+      }
+    } else if (currentStep === 3) {
+      if (!formData.skills.trim()) {
+        setError('Please enter at least one skill');
+        return false;
+      }
+      if (!formData.location.trim()) {
+        setError('Location is required');
+        return false;
+      }
+      if (!formData.phoneNumber.trim() || !/^\+?[0-9]{10,15}$/.test(formData.phoneNumber)) {
+        setError('Please provide a valid phone number');
+        return false;
+      }
     }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
-  } else if (currentStep === 2) {
-    // Education is optional now
-    if (formData.education.year && !/^\d{4}$/.test(formData.education.year)) {
-      setError('Graduation year must be a 4-digit number');
-      return false;
-    }
-  } else if (currentStep === 3) {
-    // Step 3 should be mandatory now
-    if (!formData.skills.trim()) {
-      setError('Please enter at least one skill');
-      return false;
-    }
-    if (!formData.location.trim()) {
-      setError('Location is required');
-      return false;
-    }
-    if (!formData.phoneNumber.trim() || !/^\+?[0-9]{10,15}$/.test(formData.phoneNumber)) {
-      setError('Please provide a valid phone number');
-      return false;
-    }
-  }
-  
-  setError('');
-  return true;
-};
+    
+    setError('');
+    return true;
+  };
 
-
-  // Next step handler
   const handleNextStep = () => {
     if (validateStep()) {
       setCurrentStep(prev => prev + 1);
     }
   };
 
-  // Back step handler
   const handleBackStep = () => {
     setCurrentStep(prev => prev - 1);
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -117,25 +117,18 @@ const validateStep = () => {
     setLoading(true);
     setError('');
 
-    // Process skills as an array for the API
     const processedFormData = {
       ...formData,
-      // If skills is a non-empty string, split it; otherwise, send an empty array
       skills: formData.skills ? formData.skills.split(',').map(skill => skill.trim()) : []
     };
 
     try {
-      const response = await axios.post(
-        '/api/auth/register', 
-        processedFormData,
-        {
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      // ✅ FIXED: Use api instance instead of axios
+      const response = await api.post('/api/auth/register', processedFormData);
 
       if (response.data.success) {
         toast.success('Registration successful! Please login.');
-        navigate('https://professional-networking-system-1.onrender.com/login');
+        navigate('/login'); // ✅ FIXED: Use relative path, not full URL
       } else {
         setError(response.data.message || 'Registration failed');
         toast.error(response.data.message || 'Registration failed');
@@ -149,8 +142,6 @@ const validateStep = () => {
       setLoading(false);
     }
   };
-
-// ... existing code ...
 
   return (
     <div className="min-h-screen w-screen bg-gray-50 flex items-center justify-center p-4">
@@ -280,7 +271,7 @@ const validateStep = () => {
               </div>
             )}
 
-            {/* Step 2: Education (optional) */}
+            {/* Step 2: Education */}
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
@@ -434,8 +425,6 @@ const validateStep = () => {
       </div>
     </div>
   );
-
-// ... existing code ...
 };
 
 export default Register;

@@ -153,7 +153,7 @@ skills: skills || [],
 export const userLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
-
+        
         // Validate input
         if (!email || !password) {
             return res.status(400).json({
@@ -161,7 +161,7 @@ export const userLogin = async (req, res) => {
                 message: "Please provide email and password"
             });
         }
-
+        
         // Find user by email (case-insensitive)
         const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
         
@@ -171,7 +171,7 @@ export const userLogin = async (req, res) => {
                 message: "Invalid email or password"
             });
         }
-
+        
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         
@@ -181,27 +181,29 @@ export const userLogin = async (req, res) => {
                 message: "Invalid email or password"
             });
         }
-
+        
         // Update last login time
         user.lastLogin = Date.now();
         await user.save();
-
+        
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '30d' } // ✅ Changed to 30 days to match your jwtToken.js
         );
-
-        // Set token as cookie
+        
+        // ✅ FIXED: Set cookie with correct settings for cross-origin
+        const isProduction = process.env.NODE_ENV === 'production';
+        
         res.cookie('jwt', token, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production' // Only secure in production
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            sameSite: isProduction ? 'none' : 'lax', // ✅ 'none' for cross-origin in production
+            secure: isProduction // ✅ Must be true when sameSite is 'none'
         });
-
-        // Return success response
+        
+        // ✅ Return success response WITHOUT token in body
         res.status(200).json({
             success: true,
             message: "Login successful",
@@ -209,10 +211,9 @@ export const userLogin = async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email
-            },
-            token: token // Also send the token in the response for frontend storage
+            }
+            // ✅ Removed token from response - it's in the cookie now!
         });
-
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({
@@ -221,7 +222,6 @@ export const userLogin = async (req, res) => {
         });
     }
 };
-
 // User logout
 export const userLogout = async (req, res) => {
     try {

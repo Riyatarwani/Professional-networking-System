@@ -14,6 +14,7 @@ const jwtToken = (userId, res) => {
     httpOnly: true,
     sameSite: isProduction ? "none" : "lax",
     secure: isProduction // secure must be true when SameSite=None (and in production HTTPS)
+    
   });
 };
 
